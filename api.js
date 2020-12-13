@@ -17,7 +17,7 @@ const settings = {
     useCreateIndex: true
 };
 
-mongoose.connect(uri, settings, () => console.log("Connected to database"));
+mongoose.connect(uri, settings);
 mongoose.Promise = global.Promise;
 
 mongoose.connection.once("open", () => {
