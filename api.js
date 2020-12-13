@@ -7,8 +7,9 @@ const UserModel = schemas[0];
 const PostModel = schemas[1];
 const CommentModel = schemas[2];
 
-const username = process.env.username;
-const password = process.env.password;
+const username = process.env.USERNAME_cli;
+const password = process.env.PASSWORD_cli;
+console.log(username + " " + password);
 const uri = `mongodb+srv://${username}:${password}@cluster0.b39jc.mongodb.net/social_media_app?retryWrites=true&w=majority`;
 
 const settings = {
