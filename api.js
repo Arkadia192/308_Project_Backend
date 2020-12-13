@@ -1,4 +1,5 @@
 const express = require("express");
+const dotenv = require("dotenv").config();
 const router = express.Router();
 const mongoose = require("mongoose");
 const schemas = require("./schemas_models");
@@ -28,20 +29,29 @@ mongoose.connection.once("open", () => {
 });
 
 router.get("/users", function(req, res) {
+    console.log("user get request");
     UserModel.findOne({username: req.body.username}).then(function(data) {
         res.send(data);
+    }).catch(function(err) {
+        console.log(err);
     });
 });
 
 router.post("/users", function(req, res) {
+    console.log("user post request");
     UserModel.create(req.body).then(function(data) {
         res.send(data);
+    }).catch(function(err) {
+        console.log(err);
     });
 });
 
 router.delete("/users", function(req, res) {
+    console.log("user delete request");
     UserModel.findOneAndDelete({username: req.body.username}).then(function(data) {
         res.send(data);
+    }).catch(function(err) {
+        console.log(err);
     });
 });
 
