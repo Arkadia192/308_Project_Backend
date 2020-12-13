@@ -23,19 +23,25 @@ mongoose.Promise = global.Promise;
 router.get("/users", function(req, res) {
     UserModel.findOne({username: req.body.username}).then(function(data) {
         res.send(data);
+    }).catch(function(err) {
+        console.log(err);
     });
 });
 
 router.post("/users", function(req, res) {
     UserModel.create(req.body).then(function(data) {
         res.send(data);
+    }).catch(function(err) {
+        console.log(err);
     });
 });
 
 router.delete("/users", function(req, res) {
     UserModel.findOneAndDelete({username: req.body.username}).then(function(data) {
         res.send(data);
-    })
+    }).catch(function(err) {
+        console.log(err);
+    });
 });
 
 router.post("/stuff", function(req, res) {
