@@ -20,28 +20,33 @@ const settings = {
 mongoose.connect(uri, settings, () => console.log("Connected to database"));
 mongoose.Promise = global.Promise;
 
+mongoose.connection.once("open", () => {
+    console.log("Connected");
+}).on("error", (err) => {
+    console.log("ERROR: " + err);
+});
+
 router.get("/users", function(req, res) {
     UserModel.findOne({username: req.body.username}).then(function(data) {
         res.send(data);
-    }).catch(function(err) {
-        console.log(err);
     });
 });
 
 router.post("/users", function(req, res) {
     UserModel.create(req.body).then(function(data) {
         res.send(data);
-    }).catch(function(err) {
-        console.log(err);
     });
 });
 
 router.delete("/users", function(req, res) {
     UserModel.findOneAndDelete({username: req.body.username}).then(function(data) {
         res.send(data);
-    }).catch(function(err) {
-        console.log(err);
     });
+});
+
+router.get("/stuff", function(req, res) {
+    console.log("GET request");
+    res.send({type: "GET"});
 });
 
 router.post("/stuff", function(req, res) {
