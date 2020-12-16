@@ -10,7 +10,6 @@ const CommentModel = schemas[2];
 
 const username = process.env.USERNAME_cli;
 const password = process.env.PASSWORD_cli;
-console.log(username + " " + password);
 const uri = `mongodb+srv://${username}:${password}@cluster0.b39jc.mongodb.net/social_media_app?retryWrites=true&w=majority`;
 
 const settings = {
@@ -28,32 +27,57 @@ mongoose.connection.once("open", () => {
     console.log("ERROR: " + err);
 });
 
-router.get("/users", function(req, res) {
-    console.log("user get request");
-    UserModel.findOne({username: req.body.username}).then(function(data) {
+/// USERS PART ///
+
+
+// Get all users
+router.get("/users", function(req, res, next) {
+    console.log("Get all users request");
+    UserModel.find().then(function(data) {
         res.send(data);
     }).catch(function(err) {
         console.log(err);
+        next();
     });
 });
 
-router.post("/users", function(req, res) {
-    console.log("user post request");
-    UserModel.create(req.body).then(function(data) {
+// Look up a specific user
+router.get("/users/:usr", function(req, res, next) {
+    console.log("Get request looking for user: " + req.params.usr);
+    UserModel.findOne({username: req.params.usr}).then(function(data) {
         res.send(data);
     }).catch(function(err) {
         console.log(err);
+        next();
     });
 });
 
-router.delete("/users", function(req, res) {
-    console.log("user delete request");
-    UserModel.findOneAndDelete({username: req.body.username}).then(function(data) {
+// Delete a user
+router.get("/users/delete/:usr", function(req, res, next) {
+    console.log("Deleting the user with username: " + req.params.usr);
+    UserModel.findOneAndDelete({username: req.params.usr}).then(function(data) {
         res.send(data);
     }).catch(function(err) {
         console.log(err);
+        next();
     });
 });
+
+// Create a user 
+router.get("/users/:usr/:pwd", function(req, res, next) {
+    console.log("Creating a user with username: " + req.params.usr + " password: " + req.params.pwd);
+    let usrJson = req.body;
+    usrJson["username"] = req.params.usr;
+    usrJson["password"] = req.params.pwd;
+    UserModel.create(usrJson).then(function(data) {
+        res.send(data);
+    }).catch(function(err) {
+        console.log(err);
+        next();
+    });
+});
+
+/// USERS PART ///
 
 router.get("/stuff", function(req, res) {
     console.log("GET request");
