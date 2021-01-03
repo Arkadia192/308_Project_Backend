@@ -110,7 +110,7 @@ router.post("/users/:target/:toAdd", function(req, res, next) {
             }
             data.connections.push(data2._id);
             data.save().then(function(data3) {
-                res.send(data3);
+                res.send(data);
             }).catch(function(err) {
                 next(err);
             });

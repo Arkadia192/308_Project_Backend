@@ -151,6 +151,7 @@ failstate:
 ### <b>Get all posts of a user</b> [GET]:
 usage:
 - Send an empty <b>GET</b> request to `/user` on top of the main route (ex: http://project-308.herokuapp.com/api/posts/berk)
+- `/user` can be username or _id.
 - Returns a comma seperated list of JSON objects of type POST.
 
 failstate:
@@ -160,6 +161,7 @@ failstate:
 ### <b>Create a post</b> [POST]:
 usage:
 - Send a <b>POST</b> request to `/user` on top of the main route (ex: http://project-308.herokuapp.com/api/posts/berk)
+- `/user` can be username or _id.
 - All the parameters of the post should be given in the body of the request in JSON format. (ex: `{"text": "asdasd"}`)
 
 failstate:
@@ -168,27 +170,28 @@ failstate:
 ### <b>Delete a post</b> [DELETE]:
 usage:
 - Send an empty <b>DELETE</b> request to `/postID` on top of the main route (ex: http://project-308.herokuapp.com/api/posts/5ff1e1a91e2c5e49f42af0ca)
-- Post id is the _id attribute of the post given by default by mongodb.
+- `PostID` is the _id attribute of the post given by default by mongodb.
 
 failstate:
 - If the post can not be found, response code is 500, error is "EMPTY".
-- If the postID is invalid, responce code is 500, message is "Id is invalid".
+- If the `PostID` is invalid, responce code is 500, message is "Id is invalid".
 
 ### <b>Update a post</b> [PUT]:
 usage:
 - Send a <b>PUT</b> request to `/postID` on top of the main route (ex: http://project-308.herokuapp.com/api/posts/5ff1e1a91e2c5e49f42af0ca)
-- Post id is the _id attribute of the post given by default by mongodb.
+- `PostID` is the _id attribute of the post given by default by mongodb.
 - Place every attribute you want to change in the body of the request. (ex: `{"text": newText}`)
 
 failstate:
 - If the post can not be found, response code is 500, error is "EMPTY".
-- If the postID is invalid, responce code is 500, message is "Id is invalid".
+- If the `PostID` is invalid, responce code is 500, message is "Id is invalid".
 
 ### <b>Like a post</b> [PUT]:
 usage:
 - Send an empty <b>PUT</b> request to `/like/postID` on top of the main route (ex: http://project-308.herokuapp.com/api/posts/like/5ff1e1a91e2c5e49f42af0ca)
+- `PostID` is the _id attribute of the post given by default by mongodb.
 - If the request can be processed without any errors, like count is increased by 1.
 
 failstate:
 - If the post can not be found, response code is 500, error is "EMPTY".
-- If the postID is invalid, responce code is 500, message is "Id is invalid".
+- If the `PostID` is invalid, responce code is 500, message is "Id is invalid".
