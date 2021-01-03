@@ -141,7 +141,7 @@ router.post("/users", function(req, res, next) {
 // Get all posts
 router.get("/posts", function(req, res, next) {
     console.log("Getting all posts");
-    PostModel.find().then(function(data) {
+    PostModel.find().populate("user").then(function(data) {
         if (data == null) {
             throw {code: 40404, message: "No posts found"};
         }
