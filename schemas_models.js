@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-var PostSchema;
 var UserSchema = new Schema(
     {
         username: {
@@ -13,32 +12,43 @@ var UserSchema = new Schema(
             type: String,
             required: [true, "password is required"]
         },
+        email: {
+            type: String
+        },
         pp: {
             type: String
         },
-        posts: {
-            type: [PostSchema]
-        },
-        connections: {
-            type: [String]
-        }
+        posts: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "postModel"
+        }],
+        connections: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "userModel"
+        }],
+        topics: [{
+            type: String
+        }]
     }
 );
 
 var PostSchema = new Schema(
     {
         user: {
-            type: UserSchema,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "userModel",
+            unique: false,
             required: [true, "Post needs to have a user"]
         },
         text: {
             type: String
         },
-        topics: {
-            type: [String]
-        },
+        topics: [{
+            type: String
+        }],
         likes: {
-            type: Number
+            type: Number,
+            default: 0
         },
         image: {
             type: String
@@ -55,10 +65,12 @@ var CommentSchema = new Schema(
             type: String
         },
         user: {
-            type: UserSchema
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "userModel"
         },
-        posts: {
-            type: PostSchema
+        post: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "postModel"
         }
     }
 );

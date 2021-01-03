@@ -14,7 +14,7 @@ app.use(function(err, req, res, next) {
     res.status(500);
     if (err.code == 11000) {
         console.log("Duplicate key error received");
-        res.send({error: "DUPLICATE", message: "This user already exists"});
+        res.send({error: "DUPLICATE", message: "You are trying to put something that is already here"});
     }
     else if (err.code == 40404) {
         console.log("Database returned null");
