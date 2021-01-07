@@ -24,6 +24,10 @@ var UserSchema = new Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "postModel"
         }],
+        comments: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "commentModel"
+        }],
         connections: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: "userModel"
@@ -113,18 +117,25 @@ var PostSchema = new Schema(
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "userModel",
-            unique: false, 
+            unique: false,
             required: [true, "Post needs to have a user"]
         },
         text: {
             type: String
         },
+        comments: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "commentModel"
+        }],
         topics: [{
             type: String
         }],
         likes: {
             type: Number,
             default: 0
+        },
+        time: {
+            type: Date
         },
         image: {
             type: String
@@ -170,7 +181,7 @@ failstate:
 ### <b>Delete a post</b> [DELETE]:
 usage:
 - Send an empty <b>DELETE</b> request to `/postID` on top of the main route (ex: http://project-308.herokuapp.com/api/posts/5ff1e1a91e2c5e49f42af0ca)
-- `PostID` is the _id attribute of the post given by default by mongodb.
+- `PostID` is the _id attribute of the post.
 
 failstate:
 - If the post can not be found, response code is 500, error is "EMPTY".
@@ -179,7 +190,7 @@ failstate:
 ### <b>Update a post</b> [PUT]:
 usage:
 - Send a <b>PUT</b> request to `/postID` on top of the main route (ex: http://project-308.herokuapp.com/api/posts/5ff1e1a91e2c5e49f42af0ca)
-- `PostID` is the _id attribute of the post given by default by mongodb.
+- `PostID` is the _id attribute of the post.
 - Place every attribute you want to change in the body of the request. (ex: `{"text": newText}`)
 
 failstate:
@@ -189,9 +200,94 @@ failstate:
 ### <b>Like a post</b> [PUT]:
 usage:
 - Send an empty <b>PUT</b> request to `/like/postID` on top of the main route (ex: http://project-308.herokuapp.com/api/posts/like/5ff1e1a91e2c5e49f42af0ca)
-- `PostID` is the _id attribute of the post given by default by mongodb.
+- `PostID` is the _id attribute of the post.
 - If the request can be processed without any errors, like count is increased by 1.
 
 failstate:
 - If the post can not be found, response code is 500, error is "EMPTY".
 - If the `PostID` is invalid, responce code is 500, message is "Id is invalid".
+
+# COMMENTS:
+
+```
+var CommentSchema = new Schema(
+    {
+        text: {
+            type: String
+        },
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "userModel",
+            unique: false
+        },
+        post: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "postModel",
+            unique: false
+        },
+        time: {
+            type: Date
+        }
+    }
+);
+```
+
+- ## Main Route -> http://project-308.herokuapp.com/api/comments
+
+## There are 3 functions regarding comments:
+
+### <b>Get a comment</b> [GET]:
+usage: 
+- Send a <b>GET</b> request to the [main route](http://project-308.herokuapp.com/api/comments). 
+- Body of the request should contain `id` parameter where the value is the _id of the comment.
+- Returns the COMMENT.
+
+failstate:
+- If the comment can not be found, response code is 500, error is "EMPTY".
+
+### <b>Post a comment</b> [POST]:
+usage:
+- Send a <b>POST</b> request to the [main route](http://project-308.herokuapp.com/api/comments). 
+- Body of the request should contain `post`, `user`, and `text` parameters where `post` is the _id attribute of post, `user` is the _id attribute of the user, and `text` is the text of the comment.
+
+failstate:
+- If the user can not be found, response code is 500, error is "EMPTY".
+- If the post can not be found, response code is 500, error is "EMPTY".
+
+### <b>Delete a comment</b> [DELETE]:
+usage:
+- Send a <b>DELETE</b> request to the [main route](http://project-308.herokuapp.com/api/comments).
+- Body of the requets should contain an `id` parameter where it is the _id attributeof the comment.
+
+# TOPICS:
+
+- ## Main Route -> http://project-308.herokuapp.com/api/topics
+
+## There are 3 functions regarding topics:
+
+### <b>Add a topic to a post</b> [PUT]:
+usage: 
+- Send a <b>PUT</b> request to the [main route](http://project-308.herokuapp.com/api/topics). 
+- Body of the request should contain `id` and `topic` parameters where id is the _id of the post and topic is the string of the topic.
+- Returns the POST.
+
+failstate:
+- If the post can not be found, response code is 500, error is "EMPTY".
+
+### <b>Remove a topic from post</b> [DELETE]:
+usage:
+- Send a <b>DELETE</b> request to the [main route](http://project-308.herokuapp.com/api/topics). 
+- Body of the request should contain `id` and `topic` parameters where id is the _id of the post and topic is the string of the topic.
+- Returns the POST.
+
+failstate:
+- If the post can not be found, response code is 500, error is "EMPTY".
+
+### <b>Get all posts with topic</b> [GET]:
+usage:
+- Send a <b>GET</b> request to the [main route](http://project-308.herokuapp.com/api/topics).
+- Body of the requets should contain a `topic` parameter where it is the topic you are searching for.
+- Returns a list of POSTs.
+
+failstate:
+- if no posts can be found, response code is 500, error is "EMPTY"

@@ -124,7 +124,7 @@ router.post("/users/:target/:toAdd", function(req, res, next) {
 
 // Create a user 
 router.post("/users", function(req, res, next) {
-    console.log("Creating a user with username: " + req.body.usr + " password: " + req.body.pwd);
+    console.log("Creating a user with username: " + req.body.username + " password: " + req.body.password);
     let usrJson = req.body;
     UserModel.create(usrJson).then(function(data) {
         // This throws an error by itself when there is a duplication
@@ -247,7 +247,7 @@ router.put("/posts/like/:postId", function(req, res, next) {
 //////// Topics
 
 // Add a topic to a post
-router.put("/topic", function(req, res, next) {
+router.put("/topics", function(req, res, next) {
     console.log("adding topic to post with id: " + req.body.id);
     if (!mongoose.Types.ObjectId.isValid(req.body.id))
         next({message: "Id is invalid"});
@@ -264,7 +264,7 @@ router.put("/topic", function(req, res, next) {
 });
 
 // Get all posts with a spesific topic
-router.get("/topic", function(req, res, next) {
+router.get("/topics", function(req, res, next) {
     console.log("Getting all posts with topic: " + req.body.topic);
     PostModel.find({topics: req.body.topic}).then(function(data) {
         if (data == null) {
@@ -277,7 +277,7 @@ router.get("/topic", function(req, res, next) {
 });
 
 // Remove a topic from a post
-router.delete("/topic", function(req, res, next) {
+router.delete("/topics", function(req, res, next) {
     console.log("Removing " + req.body.topic + " from the post with id: " + req.body.id);
     PostModel.findOne({_id: req.body.id}).then(function(postData) {
         postData.topics.pull(req.body.topic);
@@ -295,12 +295,12 @@ router.delete("/topic", function(req, res, next) {
 
 // Get a comment
 router.get("/comments", function(req, res, next) {
-    console.log("Getting the post with id: " + req.body.id);
+    console.log("Getting the comment with id: " + req.body.id);
     if (!mongoose.Types.ObjectId.isValid(req.body.id))
         next({message: "Comment id is invalid"});
     CommentModel.findOne({_id: req.body.id}).populate("user").populate("post").then(function(commentData) {
         if (commentData == null) {
-            throw {code: 40404, message: "User not found"};
+            throw {code: 40404, message: "comment not found"};
         }
         res.send(commentData);
     }).catch(function(err) {
