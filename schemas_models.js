@@ -22,6 +22,10 @@ var UserSchema = new Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "postModel"
         }],
+        comments: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "commentModel"
+        }],
         connections: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: "userModel"
@@ -43,12 +47,19 @@ var PostSchema = new Schema(
         text: {
             type: String
         },
+        comments: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "commentModel"
+        }],
         topics: [{
             type: String
         }],
         likes: {
             type: Number,
             default: 0
+        },
+        time: {
+            type: Date
         },
         image: {
             type: String
@@ -66,11 +77,16 @@ var CommentSchema = new Schema(
         },
         user: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "userModel"
+            ref: "userModel",
+            unique: false
         },
         post: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "postModel"
+            ref: "postModel",
+            unique: false
+        },
+        time: {
+            type: Date
         }
     }
 );

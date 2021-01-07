@@ -141,7 +141,7 @@ router.post("/users", function(req, res, next) {
 // Get all posts
 router.get("/posts", function(req, res, next) {
     console.log("Getting all posts");
-    PostModel.find().populate("user").then(function(data) {
+    PostModel.find().populate("user").populate("comments").then(function(data) {
         if (data == null) {
             throw {code: 40404, message: "No posts found"};
         }
@@ -155,7 +155,7 @@ router.get("/posts", function(req, res, next) {
 router.get("/posts/:user", function(req, res, next) {
     console.log("Getting posts of: " + req.params.user);
     let userQuery = GetUserQuery(req.params.user);
-    UserModel.findOne(userQuery).populate("posts").then(function(userData) {
+    UserModel.findOne(userQuery).populate({path: "posts", populate: {path: "comments"}}).then(function(userData) {
         if (userData == null) {
             throw {code: 40404, message: "User not found"};
         }
@@ -176,6 +176,7 @@ router.post("/posts/:user", function(req, res, next) {
             throw {code: 40404, message: "User not found"};
         }
         postJson["user"] = userData._id;
+        postJson["time"] = Date.now();
         PostModel.create(postJson).then(function(postData) {
             userData.posts.push(postData._id);
             userData.save().then(function(data3) {
@@ -221,6 +222,8 @@ router.put("/posts/:postId", function(req, res, next) {
     });
 })
 
+///////// Likes
+
 // Like a post
 router.put("/posts/like/:postId", function(req, res, next) {
     console.log("Liking the post with id: " + req.params.postId);
@@ -241,8 +244,120 @@ router.put("/posts/like/:postId", function(req, res, next) {
     });
 });
 
+//////// Topics
+
+// Add a topic to a post
+router.put("/topic", function(req, res, next) {
+    console.log("adding topic to post with id: " + req.body.id);
+    if (!mongoose.Types.ObjectId.isValid(req.body.id))
+        next({message: "Id is invalid"});
+    PostModel.findOne({_id: req.body.id}).then(function(postData) {
+        postData.topics.push(req.body.topic);
+        postData.save().then(function(newPostData) {
+            res.send(newPostData);
+        }).catch(function(err) {
+            next(err);
+        });
+    }).catch(function(err) {
+        next(err);
+    });
+});
+
+// Get all posts with a spesific topic
+router.get("/topic", function(req, res, next) {
+    console.log("Getting all posts with topic: " + req.body.topic);
+    PostModel.find({topics: req.body.topic}).then(function(data) {
+        if (data == null) {
+            throw {code: 40404, message: "No posts with this topic"};
+        }
+        res.send(data);
+    }).catch(function(err) {
+        next(err);
+    });
+});
+
+// Remove a topic from a post
+router.delete("/topic", function(req, res, next) {
+    console.log("Removing " + req.body.topic + " from the post with id: " + req.body.id);
+    PostModel.findOne({_id: req.body.id}).then(function(postData) {
+        postData.topics.pull(req.body.topic);
+        postData.save().then(function(newPostData) {
+            res.send(newPostData);
+        });
+    }).catch(function(err) {
+        next(err);
+    });
+});
+
 /// POSTS PART END ///
 
+/// COMMENTS PART START ///
+
+// Get a comment
+router.get("/comments", function(req, res, next) {
+    console.log("Getting the post with id: " + req.body.id);
+    if (!mongoose.Types.ObjectId.isValid(req.body.id))
+        next({message: "Comment id is invalid"});
+    CommentModel.findOne({_id: req.body.id}).populate("user").populate("post").then(function(commentData) {
+        if (commentData == null) {
+            throw {code: 40404, message: "User not found"};
+        }
+        res.send(commentData);
+    }).catch(function(err) {
+        next(err);
+    });
+});
+
+// Add a comment to a post
+router.post("/comments", function(req, res, next) {
+    console.log("Adding a comment to post with id: " + req.body.post);
+    if (!mongoose.Types.ObjectId.isValid(req.body.post))
+        next({message: "Post id is invalid"});
+    let userQuery = GetUserQuery(req.body.user);
+    UserModel.findOne(userQuery).then(function(userData) {
+        PostModel.findOne({_id: req.body.post}).then(function(postData) {
+            let commentQuery = {text: req.body.text, 
+                                user: userData._id, 
+                                post: postData._id,
+                                time: Date.now()};
+            CommentModel.create(commentQuery).then(function(commentData) {
+                userData.comments.push(commentData._id);
+                userData.save().then(function(savedUser) {
+                    postData.comments.push(commentData._id);
+                    postData.save().then(function(savedPost) {
+                        res.send(commentData);
+                    }).catch(function(err) {
+                        next(err);
+                    });
+                }).catch(function(err) {
+                    next(err);
+                });
+            }).catch(function(err) {
+                next(err);
+            });
+        }).catch(function(err) {
+            next(err);
+        });
+    }).catch(function(err) {
+        next(err);
+    });
+});
+
+// Delete a comment 
+router.delete("/comments", function(req, res, next) {
+    if (!mongoose.Types.ObjectId.isValid(req.body.id))
+        next({message: "Comment id is wrong"});
+    CommentModel.findOneAndDelete({_id: req.body.id}).then(function(commentData) {
+        if (commentData == null) {
+            throw {code: 40404, message: "User not found"};
+        }
+        res.send(commentData);
+    }).catch(function(err) {
+        next(err);
+    });
+});
+
+/// COMMENTS PART END ///
 
 // Get data
 router.get("/stuff", function(req, res) {
