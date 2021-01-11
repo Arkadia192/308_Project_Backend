@@ -101,6 +101,44 @@ router.delete("/users/delete/:usr", function(req, res, next) {
     });
 });
 
+// Add topic to user
+router.put("/users/topic/:usr", function(req, res, next) {
+    console.log("Adding topic: " + req.body.topic + " to user: " + req.params.usr);
+    let userQuery = GetUserQuery(req.params.usr);
+    UserModel.findOne(userQuery).then(function(userData) {
+        if (userData == null) {
+            throw {code: 40404, message: "User not found"};
+        }
+        userData.topics.push(req.body.topic);
+        userData.save().then(function(saved) {
+            res.send(userData);
+        }).catch(function(err) {
+            next(err);
+        });
+    }).catch(function(err) {
+        next(err);
+    });
+});
+
+//Remove topic from user
+router.delete("/users/topic/:usr", function(req, res, next) {
+    console.log("Removing topic: " + req.body.topic + " from user: " + req.params.usr);
+    let userQuery = GetUserQuery(req.params.usr);
+    UserModel.findOne(userQuery).then(function(userData) {
+        if (userData == null) {
+            throw {code: 40404, message: "User not found"};
+        }
+        userData.topics.pull(req.body.topic);
+        userData.save().then(function(saved) {
+            res.send(userData);
+        }).catch(function(err) {
+            next(err);
+        });
+    }).catch(function(err) {
+        next(err);
+    });
+});
+
 // Update a user
 router.put("/users/update/:usr", function(req, res, next) {
     console.log("Updating the user: " + req.params.usr);
