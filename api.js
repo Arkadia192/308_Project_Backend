@@ -63,6 +63,30 @@ router.get("/users/:usr", function(req, res, next) {
     });
 });
 
+//Get users feed page
+router.get("/users/getfeed/:usr", function(req, res, next) {
+    console.log("Getting the feed page of user: " + req.params.usr);
+    let userQuery = GetUserQuery(req.params.usr);
+    UserModel.findOne(userQuery).then(function(userData) {
+        if (userData == null) {
+            throw {code: 40404, message: "User not found"};
+        }
+        searchQuery = [{user: {$in: userData.connections}}];
+        if (userData.topics != [])
+            searchQuery.push({topics: {$in: userData.topics}});
+        PostModel.find({$and: [{$or: searchQuery}, {user: {$ne: userData._id}}]}).then(function(postList) {
+            if(postList == []) {
+                throw {code: 40404, message: "No posts found"};
+            }
+            res.send(postList);
+        }).catch(function(err) {
+            next(err);
+        });
+    }).catch(function(err) {
+        next(err);
+    });
+});
+
 // Delete a user
 router.delete("/users/delete/:usr", function(req, res, next) {
     console.log("Deleting the user: " + req.params.usr);
