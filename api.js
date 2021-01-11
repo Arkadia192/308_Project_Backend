@@ -119,8 +119,35 @@ router.post("/users/:target/:toAdd", function(req, res, next) {
         });
     }).catch(function(err) {
         next(err);
-    })
-})
+    });
+});
+
+// Remove Connection to a user
+router.delete("/users/:target/:toAdd", function(req, res, next) {
+    console.log("Removing connection " + req.params.target + " to " + req.params.toAdd);
+    let targetQuery = GetUserQuery(req.params.target);
+    let toAddQuery = GetUserQuery(req.params.toAdd);
+    UserModel.findOne(targetQuery).then(function(data) {
+        if (data == null) {
+            throw {code: 40404, message: "User not found"};
+        }
+        UserModel.findOne(toAddQuery).then(function(data2) {
+            if (data2 == null) {
+                throw {code: 40404, message: "User not found"};
+            }
+            data.connections.pull(data2._id);
+            data.save().then(function(data3) {
+                res.send(data);
+            }).catch(function(err) {
+                next(err);
+            });
+        }).catch(function(err) {
+            next(err);
+        });
+    }).catch(function(err) {
+        next(err);
+    });
+});
 
 // Create a user 
 router.post("/users", function(req, res, next) {
