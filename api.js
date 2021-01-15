@@ -87,6 +87,18 @@ router.get("/users/getfeed/:usr", function(req, res, next) {
     });
 });
 
+router.get("/users/search/:usr", function(req, res, next) {
+    console.log("Searching for user with regex: " + req.params.usr);
+    UserModel.find({username: {$regex: req.params.usr}}).then(function(userData) {
+        if (userData == []) {
+            throw {code: 40404, message: "No user found"};
+        }
+        res.send(userData);
+    }).catch(function(err) {
+        next(err);
+    });
+})
+
 // Delete a user
 router.delete("/users/delete/:usr", function(req, res, next) {
     console.log("Deleting the user: " + req.params.usr);
