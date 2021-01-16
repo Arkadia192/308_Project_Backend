@@ -15,10 +15,12 @@ var UserSchema = new Schema(
             required: [true, "password is required"]
         },
         email: {
-            type: String
+            type: String,
+            default: ""
         },
         pp: {
-            type: String
+            type: String,
+            default: "https://i.stack.imgur.com/34AD2.jpg"
         },
         posts: [{
             type: mongoose.Schema.Types.ObjectId,
@@ -121,7 +123,8 @@ var PostSchema = new Schema(
             required: [true, "Post needs to have a user"]
         },
         text: {
-            type: String
+            type: String,
+            default: ""
         },
         comments: [{
             type: mongoose.Schema.Types.ObjectId,
@@ -138,10 +141,12 @@ var PostSchema = new Schema(
             type: Date
         },
         image: {
-            type: String
+            type: String,
+            default: ""
         },
         location: {
-            type: String
+            type: String,
+            default: ""
         }
     }
 );
@@ -213,7 +218,8 @@ failstate:
 var CommentSchema = new Schema(
     {
         text: {
-            type: String
+            type: String,
+            default: ""
         },
         user: {
             type: mongoose.Schema.Types.ObjectId,
