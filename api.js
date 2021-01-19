@@ -72,8 +72,10 @@ router.get("/users/getfeed/:usr", function(req, res, next) {
             throw {code: 40404, message: "User not found"};
         }
         searchQuery = [{user: {$in: userData.connections}}];
-        if (userData.topics != [])
+        if (userData.topics != []) {
             searchQuery.push({topics: {$in: userData.topics}});
+            searchQuery.push({location: {$eq: userData.location}})
+        }
         PostModel.find({$and: [{$or: searchQuery}, {user: {$ne: userData._id}}]}).then(function(postList) {
             if(postList == []) {
                 throw {code: 40404, message: "No posts found"};
@@ -150,6 +152,25 @@ router.delete("/users/topic/:usr", function(req, res, next) {
         next(err);
     });
 });
+
+// Set a users location
+router.put("/users/location/:usr", function(req, res, next) {
+    console.log("Setting location as: " + req.body.location + " for user: " + req.params.usr);
+    let userQuery = GetUserQuery(req.params.usr);
+    UserModel.findOne(userQuery).then(function(userData) {
+        if (userData == null) {
+            throw {code: 40404, message: "User not found"};
+        }
+        userData.location = req.body.location;
+        userData.save().then(function(saved) {
+            res.send(userData);
+        }).catch(function(err) {
+            next(err);
+        });
+    }).catch(function(err) {
+        next(err);
+    });
+})
 
 // Update a user
 router.put("/users/update/:usr", function(req, res, next) {
@@ -385,6 +406,38 @@ router.delete("/topics", function(req, res, next) {
         postData.save().then(function(newPostData) {
             res.send(newPostData);
         });
+    }).catch(function(err) {
+        next(err);
+    });
+});
+
+// Locations
+
+// Add a location to a post
+router.put("/locations", function(req, res, next) {
+    console.log("adding location to post with id: " + req.body.id);
+    if (!mongoose.Types.ObjectId.isValid(req.body.id))
+        next({message: "Id is invalid"});
+    PostModel.findOne({_id: req.body.id}).then(function(postData) {
+        postData.location = req.body.location;
+        postData.save().then(function(newPostData) {
+            res.send(newPostData);
+        }).catch(function(err) {
+            next(err);
+        });
+    }).catch(function(err) {
+        next(err);
+    });
+});
+
+// Get all posts with a spesific location
+router.get("/locations", function(req, res, next) {
+    console.log("Getting all posts with location: " + req.body.location);
+    PostModel.find({location: req.body.location}).then(function(data) {
+        if (data == null) {
+            throw {code: 40404, message: "No posts with this location"};
+        }
+        res.send(data);
     }).catch(function(err) {
         next(err);
     });

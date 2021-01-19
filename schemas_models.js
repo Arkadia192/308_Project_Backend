@@ -34,6 +34,9 @@ var UserSchema = new Schema(
         }],
         topics: [{
             type: String
+        }],
+        locations: [{
+            type: String
         }]
     }
 );
