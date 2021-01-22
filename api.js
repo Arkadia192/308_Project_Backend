@@ -1,3 +1,4 @@
+const { query } = require("express");
 const express = require("express");
 const dotenv = require("dotenv").config();
 const router = express.Router();
@@ -76,7 +77,7 @@ router.get("/users/getfeed/:usr", function(req, res, next) {
             searchQuery.push({topics: {$in: userData.topics}});
             searchQuery.push({location: {$eq: userData.location}})
         }
-        PostModel.find({$and: [{$or: searchQuery}, {user: {$ne: userData._id}}]}).then(function(postList) {
+        PostModel.find({$and: [{$or: searchQuery}, {user: {$ne: userData._id}}]}).populate("user").populate("comments").then(function(postList) {
             if(postList == []) {
                 throw {code: 40404, message: "No posts found"};
             }
@@ -273,6 +274,29 @@ router.get("/posts", function(req, res, next) {
     });
 });
 
+// Get all posts of a user v.2
+router.get("/posts/:user", function(req, res, next) {
+    console.log("Getting posts of: " + req.params.user);
+    let userQuery = GetUserQuery(req.params.user);
+    UserModel.findOne(userQuery).then(function(userData) {
+        if (userData == null) {
+            throw {code: 40404, message: "User not found"};
+        }
+        let query = {user: userData._id};
+        PostModel.find(query).populate("user").populate("comments").then(function(data) {
+            if (data == null) {
+                throw {code: 40404, message: "No posts found"};
+            }
+            res.send(data);
+        }).catch(function(err) {
+            next(err);
+        });
+    }).catch(function(err) {
+        next(err);
+    });
+});
+
+/*
 // Get all posts of a user
 router.get("/posts/:user", function(req, res, next) {
     console.log("Getting posts of: " + req.params.user);
@@ -286,6 +310,7 @@ router.get("/posts/:user", function(req, res, next) {
         next(err);
     });
 });
+*/
 
 // Post something
 router.post("/posts/:user", function(req, res, next) {
