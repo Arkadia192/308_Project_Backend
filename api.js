@@ -63,7 +63,7 @@ router.get("/users/:usr", function(req, res, next) {
         next(err);
     });
 });
-
+//.populate({path: "posts", populate: {path: "comments"}})
 //Get users feed page
 router.get("/users/getfeed/:usr", function(req, res, next) {
     console.log("Getting the feed page of user: " + req.params.usr);
@@ -77,7 +77,7 @@ router.get("/users/getfeed/:usr", function(req, res, next) {
             searchQuery.push({topics: {$in: userData.topics}});
             searchQuery.push({location: {$eq: userData.location}})
         }
-        PostModel.find({$and: [{$or: searchQuery}, {user: {$ne: userData._id}}]}).populate("user").populate("comments").then(function(postList) {
+        PostModel.find({$and: [{$or: searchQuery}, {user: {$ne: userData._id}}]}).populate("user").populate("comments").populate({path: "comments", populate: {path: "user"}}).then(function(postList) {
             if(postList == []) {
                 throw {code: 40404, message: "No posts found"};
             }
