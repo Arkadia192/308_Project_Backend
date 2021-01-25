@@ -1,3 +1,5 @@
+## <b>There are functions that are not documented here since we started using postman to share functions between us. I just wanted to make that clear in case you just check this readme to grade the backend :).</b>
+
 # Social Media Project
 
 # Users:
